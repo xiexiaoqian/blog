@@ -10,7 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,4 +50,48 @@ public class UserServiceImpl implements UserService {
 
 
     }
+
+    @Override
+    public Map<String, Object> register(UserDto userDto) {
+        Map<String, Object> map = new HashMap<>();
+        int i = 0;
+        try {
+            i = userDao.insert(userDto);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            logger.error("用户注册时出错！");
+        }
+        System.out.println("i的值为：" + i);
+        if (i == 1) {
+            map.put("msg", Message.REGISTER_SUCCESS);
+            map.put("data", userDto);
+            logger.info("注册" + userDto.getMobile() + "用户成功");
+        } else {
+            map.put("msg", Message.REGISTER_DEFEATED);
+        }
+        return map;
+    }
+
+    @Override
+    public List<User> hotUser() {
+        List<User> userList = new ArrayList<>();
+        try {
+            userList = userDao.getHotUser();
+        } catch (SQLException e) {
+            logger.error("查询热门博主出现异常");
+        }
+        return userList;
+    }
+
+    @Override
+    public User userById(Long id) {
+        User user = null;
+        try {
+            user = userDao.getUserById(id);
+        } catch (SQLException e) {
+            logger.error("获取id=" + id + "的文章出错");
+        }
+        return user;
+    }
+
 }

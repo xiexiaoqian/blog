@@ -3,6 +3,7 @@ package com.web_dev.blog.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.web_dev.blog.domain.UserDto;
+import com.web_dev.blog.entity.User;
 import com.web_dev.blog.factory.ServiceFactory;
 import com.web_dev.blog.service.UserService;
 import com.web_dev.blog.util.Message;
@@ -14,6 +15,8 @@ import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.*;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,7 +26,7 @@ import java.util.Map;
  * @Date 2019/11/9
  * @Version 1.0
  **/
-@WebServlet(urlPatterns = "/sign-in")
+@WebServlet(urlPatterns = {"/api/sign-in", "/api/register", "/api/user/hot", "/api/user/detail/*"})
 public class UserController extends HttpServlet {
     private static Logger logger = LoggerFactory.getLogger(UserController.class);
     private UserService userService = ServiceFactory.getUserServiceInstance();
@@ -36,21 +39,59 @@ public class UserController extends HttpServlet {
         while ((line = reader.readLine()) != null) {
             stringBuilder.append(line);
         }
-        logger.info("登录用户信息：" + stringBuilder.toString());
         Gson gson = new GsonBuilder().create();
         UserDto userDto = gson.fromJson(stringBuilder.toString(), UserDto.class);
-        Map<String, Object> map = userService.signIn(userDto);
+        Map<String, Object> map = null;
+        // 获取请求路径
+        String requestPath = req.getRequestURI().trim();
+        switch (requestPath) {
+            case "/api/sign-in":
+                map = userService.signIn(userDto);
+                break;
+            case "/api/register":
+                map = userService.register(userDto);
+                break;
+        }
         String msg = (String) map.get("msg");
         ResponseObject ro;
-        if (msg.equals(Message.SIGN_IN_SUCCESS)) {
-            ro = ResponseObject.success(200, msg, map.get("data"));
-        } else {
-            ro = ResponseObject.success(200, msg);
+        switch (msg) {
+            case Message.SIGN_IN_SUCCESS:
+            case Message.REGISTER_SUCCESS:
+                ro = ResponseObject.success(200, msg, map.get("data"));
+                break;
+            case Message.PASSWORD_ERROR:
+            case Message.MOBILE_NOT_FOUND:
+            case Message.REGISTER_DEFEATED:
+            default:
+                ro = ResponseObject.success(200, msg);
         }
         PrintWriter out = resp.getWriter();
         out.print(gson.toJson(ro));
         out.close();
     }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<User> userList = new ArrayList<>();
+        String requestPath = req.getRequestURI().trim();
+        ResponseObject ro = null;
+        User user = null;
+        switch (requestPath) {
+            case "/api/user/hot":
+                userList = userService.hotUser();
+                ro = ResponseObject.success(resp.getStatus(), resp.getStatus() == 200 ? "成功" : "失败", userList);
+                break;
+            default:
+                String id = requestPath.substring(requestPath.lastIndexOf("/") + 1);
+                user = userService.userById(Long.valueOf(id));
+                ro = ResponseObject.success(resp.getStatus(), resp.getStatus() == 200 ? "成功" : "失败", user);
+        }
+        PrintWriter out = resp.getWriter();
+        Gson gson = new GsonBuilder().create();
+        out.print(gson.toJson(ro));
+        out.close();
+    }
+
 
     @Override
     public void init() throws ServletException {

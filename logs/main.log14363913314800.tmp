@@ -1,0 +1,3 @@
+2019-11-09.17:43:26 ERROR [main] com.web_dev.blog.service.impl.UserServiceImpl.signIn:34  根据手机号查询用户出现异常
+2019-11-09.17:48:45 ERROR [main] com.web_dev.blog.service.impl.UserServiceImpl.signIn:34  根据手机号查询用户出现异常
+2019-11-09.17:55:21 INFO  [main] com.web_dev.blog.dao.UserDaoTest.findUserByMobile:36  按手机查找用户异常

@@ -2,13 +2,12 @@ package com.web_dev.blog.dao;
 
 import com.web_dev.blog.entity.User;
 import com.web_dev.blog.factory.DaoFactory;
-import com.web_dev.blog.util.JSoupSpiderUser;
+import com.web_dev.blog.util.JSoupSpider;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.SQLException;
-import java.util.List;
 
 
 public class UserDaoTest {
@@ -18,7 +17,7 @@ public class UserDaoTest {
     @Test
     public void batchInsert() {
         try {
-            int[] result = userDao.batchInsert(JSoupSpiderUser.getUsers());
+            int[] result = userDao.batchInsert(JSoupSpider.getUsers());
             System.out.println(result.length);
         } catch (SQLException e) {
             logger.error("批量新增用户出现异常");

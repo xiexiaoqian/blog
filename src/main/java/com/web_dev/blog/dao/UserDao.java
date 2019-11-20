@@ -1,6 +1,6 @@
 package com.web_dev.blog.dao;
 
-import com.web_dev.blog.entity.Student;
+import com.web_dev.blog.domain.UserDto;
 import com.web_dev.blog.entity.User;
 
 import java.sql.SQLException;
@@ -31,5 +31,27 @@ public interface UserDao {
      */
     User findUserByMobile(String mobile) throws SQLException;
 
+    /**
+     * 新曾用户
+     * @param userDto
+     * @return
+     * @throws SQLException
+     */
+    int insert(UserDto userDto) throws SQLException;
+
+    /**
+     * 获取热门作者
+     * @return
+     * @throws SQLException
+     */
+    List<User> getHotUser() throws SQLException;
+
+    /**
+     * 通过指定id查找文章详细信息
+     * @param id 指定文章id
+     * @return
+     * @throws SQLException
+     */
+    User getUserById(Long id) throws SQLException;
 
 }
