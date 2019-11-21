@@ -26,7 +26,7 @@ public class ImageUtil {
         Graphics2D g = (Graphics2D) img.getGraphics();
         g.setBackground(new Color(255, 205, 66));
         g.drawRect(0,0,200,100);
-        g.setPaint(new Color(0,0,0));
+        g.setPaint(new Color(255, 18, 210));
         Font font = new Font("楷体",Font.BOLD,30);
         g.setFont(font);
         g.drawString(content,80,50);
