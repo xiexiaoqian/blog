@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import com.web_dev.blog.domain.UserDto;
 import com.web_dev.blog.entity.User;
 import com.web_dev.blog.factory.ServiceFactory;
+import com.web_dev.blog.listener.MySessionContext;
 import com.web_dev.blog.service.UserService;
 import com.web_dev.blog.util.Message;
 import com.web_dev.blog.util.ResponseObject;
@@ -41,12 +42,26 @@ public class UserController extends HttpServlet {
         }
         Gson gson = new GsonBuilder().create();
         UserDto userDto = gson.fromJson(stringBuilder.toString(), UserDto.class);
+        String inputCode = userDto.getCode().trim();
         Map<String, Object> map = null;
         // 获取请求路径
+        String sessionId = req.getHeader("Access-Token");
+        System.out.println("客户端传来的JSESSIONID：" + sessionId);
+        MySessionContext myc = MySessionContext.getInstance();
+        HttpSession session = myc.getSession(sessionId);
+        String correctCode = session.getAttribute("code").toString().replace("  ", "");
+        System.out.println("正确的验证码：" + correctCode);
+        // 获取请求路径
         String requestPath = req.getRequestURI().trim();
+        PrintWriter out = resp.getWriter();
+
         switch (requestPath) {
             case "/api/sign-in":
                 map = userService.signIn(userDto);
+                if (!inputCode.equalsIgnoreCase(correctCode)) {
+                    map.put("msg", "验证码错误");
+                }
+
                 break;
             case "/api/register":
                 map = userService.register(userDto);
@@ -62,10 +77,11 @@ public class UserController extends HttpServlet {
             case Message.PASSWORD_ERROR:
             case Message.MOBILE_NOT_FOUND:
             case Message.REGISTER_DEFEATED:
+            case Message.CODE_ERROR:
+
             default:
                 ro = ResponseObject.success(200, msg);
         }
-        PrintWriter out = resp.getWriter();
         out.print(gson.toJson(ro));
         out.close();
     }

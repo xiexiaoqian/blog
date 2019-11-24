@@ -32,11 +32,11 @@ public class CodeController extends HttpServlet {
         HttpSession session = req.getSession();
         System.out.println(session.getId());
         session.setAttribute("code",code);
-
+        resp.setHeader("Access-Token",session.getId());
         BufferedImage img = ImageUtil.getImage(code,200,100);
-
+        //设置resp的响应内容类型
         resp.setContentType("image/jpg");
-
+        //将图片通过输出流返回给客户端
         OutputStream out = resp.getOutputStream();
         ImageIO.write(img,"jpg",out);
         out.close();
